@@ -32,3 +32,14 @@ func BuildApplication() *Application {
 		MessageService:  msgService,
 	}
 }
+
+func main() {
+	app := BuildApplication()
+
+	// Inicializar conexões
+	app.WhatsAppService.InitConnections()
+
+	// Simular execução
+	app.MessageHandler.HandleEvents("Olá, mensagem de teste!")
+	app.WhatsAppService.SendToClient(1, "Mensagem para cliente!")
+}
