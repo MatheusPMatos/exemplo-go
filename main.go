@@ -10,20 +10,24 @@ import (
 
 type Application struct {
 	MessageSender   serviceinterfaces.MessageSender
-	WhatsAppService serviceinterfaces.WhatsAppservice
+	WhatsAppService serviceinterfaces.WhatsAppService
 	MessageHandler  serviceinterfaces.EventHandler
 	MessageService  serviceinterfaces.Message
 }
 
 func BuildApplication() *Application {
-	// Criar dependências com inicialização mínima
-	msgSender := messagesender.NewMessageSender(nil)
+	// 1. Criação de instâncias básicas
+	whatsAppService := whatsapp.NewWhatsAppService()
+	msgSender := messagesender.NewMessageSender()
 	msgService := message.NewMessage("repo", msgSender)
-	msgHandler := messagehandler.NewMessageHandler(msgService)
-	whatsAppService := whatsapp.NewWhatsAppservice(msgHandler)
 
-	// Configurar dependências cruzadas
+	// 2. Configuração das dependências cruzadas
 	msgSender.SetWhatsAppService(whatsAppService)
+
+	// Passa o msgService para o handler
+	msgHandler := messagehandler.NewMessageHandler(msgService)
+
+	whatsAppService.InitConnections(msgHandler)
 
 	return &Application{
 		MessageSender:   msgSender,
@@ -35,11 +39,6 @@ func BuildApplication() *Application {
 
 func main() {
 	app := BuildApplication()
-
-	// Inicializar conexões
-	app.WhatsAppService.InitConnections()
-
-	// Simular execução
 	app.MessageHandler.HandleEvents("Olá, mensagem de teste!")
 	app.WhatsAppService.SendToClient(1, "Mensagem para cliente!")
 }

@@ -20,11 +20,9 @@ func NewMessage(repo string, sender serviceinterfaces.MessageSender) Message {
 }
 
 func (m *message) SaveMessage(msg string) {
-	// Exemplo: salvar mensagem no repositório (simulado)
 	println("Mensagem salva:", msg)
 }
 
 func (m *message) CreateMessage(content string) string {
-	// Exemplo: cria mensagem
 	return "Criado: " + content
 }

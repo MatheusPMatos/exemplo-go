@@ -2,42 +2,32 @@ package whatsapp
 
 import "cycleexemplo/serviceinterfaces"
 
-// Cliente WhatsApp
 type Client struct {
 	Handler serviceinterfaces.EventHandler
 }
 
 func (c *Client) AddEventHandler(handler serviceinterfaces.EventHandler) {
-	// Atribui o handler ao cliente
 	c.Handler = handler
 }
 
-// Serviço do WhatsApp (agora exportado)
-type WhatsAppservice struct {
-	Clts    map[uint]*Client
-	Handler serviceinterfaces.EventHandler
+type WhatsAppService struct {
+	Clients map[uint]*Client
 }
 
-// Construtor exportado para WhatsAppservice
-func NewWhatsAppservice(handler serviceinterfaces.EventHandler) *WhatsAppservice {
-	return &WhatsAppservice{
-		Clts:    make(map[uint]*Client),
-		Handler: handler,
+func NewWhatsAppService() *WhatsAppService {
+	return &WhatsAppService{
+		Clients: make(map[uint]*Client),
 	}
 }
 
-// Inicializa conexões do WhatsApp
-func (ws *WhatsAppservice) InitConnections() {
-	client := &Client{}
-	client.AddEventHandler(ws.Handler)
-
-	ws.Clts[1] = client // Adiciona o cliente
+func (ws *WhatsAppService) InitConnections(handler serviceinterfaces.EventHandler) {
+	client := &Client{Handler: handler}
+	ws.Clients[1] = client
 	println("Conexões iniciadas")
 }
 
-// Envia mensagem para um cliente específico
-func (ws *WhatsAppservice) SendToClient(clientID uint, message string) {
-	client, exists := ws.Clts[clientID]
+func (ws *WhatsAppService) SendToClient(clientID uint, message string) {
+	client, exists := ws.Clients[clientID]
 	if !exists {
 		println("Cliente não encontrado:", clientID)
 		return

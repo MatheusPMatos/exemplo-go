@@ -7,11 +7,10 @@ type Message interface {
 
 type MessageSender interface {
 	SendMessage(content string)
-	SetWhatsAppService(whatsApp WhatsAppservice)
 }
 
-type WhatsAppservice interface {
-	InitConnections()
+type WhatsAppService interface {
+	InitConnections(handler EventHandler)
 	SendToClient(clientID uint, message string)
 }
 
