@@ -1,13 +1,26 @@
 package messagesender
 
-import (
-	whatsapp "cycleexemplo/service/WhatsApp"
-)
+import "cycleexemplo/serviceinterfaces"
 
 type messagesender struct {
-	WhatsSV whatsapp.WhatsAppservice //TENHO QUE BUSCAR OS CLIENTS WHATSAPP PARA PODER ENVIAR MSGS ETC
+	WhatsAppService serviceinterfaces.WhatsAppService
 }
 
 type MessageSender interface {
-	SendMessage()
+	SendMessage(content string)
+}
+
+func NewMessageSender() *messagesender {
+	return &messagesender{}
+}
+
+func (ms *messagesender) SetWhatsAppService(whatsApp serviceinterfaces.WhatsAppService) {
+	ms.WhatsAppService = whatsApp
+}
+
+func (ms *messagesender) SendMessage(content string) {
+	if ms.WhatsAppService != nil {
+		ms.WhatsAppService.SendToClient(1, content)
+	}
+	println("Mensagem enviada:", content)
 }
