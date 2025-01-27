@@ -1,28 +1,51 @@
 package whatsapp
 
-import (
-	messagehandler "cycleexemplo/service/MessageHandler"
-)
+import "cycleexemplo/serviceinterfaces"
 
-type whatsAppservice struct {
-	Clts map[uint]*Client //a lista das conexoes dos diferentes numeros conectados no sistema
-	// conforme a necessidade busco o cliente correspondente para enviar a mensagem
-	Handler messagehandler.Messagehandler //INJETO O HANDLE SERVICE PARA PASSAR A FUNCAO EVENTHANDLER
+// Cliente WhatsApp
+type Client struct {
+	Handler serviceinterfaces.EventHandler
 }
 
-type WhatsAppservice interface {
-	InitConections()
-}
-
-type Client struct { // simula o client whatsapp fornecido pelo package whatsmeow
-	Handler EventHandler
-}
-
-func (c *Client) AddEventHandler(handler EventHandler) {
-	// a tal funcao que o client tem onde passamos a funcao handler que
-	// ira manejar os eventos
-
+func (c *Client) AddEventHandler(handler serviceinterfaces.EventHandler) {
+	// Atribui o handler ao cliente
 	c.Handler = handler
 }
 
-type EventHandler func(evt interface{})
+// Serviço do WhatsApp (agora exportado)
+type WhatsAppservice struct {
+	Clts    map[uint]*Client
+	Handler serviceinterfaces.EventHandler
+}
+
+// Construtor exportado para WhatsAppservice
+func NewWhatsAppservice(handler serviceinterfaces.EventHandler) *WhatsAppservice {
+	return &WhatsAppservice{
+		Clts:    make(map[uint]*Client),
+		Handler: handler,
+	}
+}
+
+// Inicializa conexões do WhatsApp
+func (ws *WhatsAppservice) InitConnections() {
+	client := &Client{}
+	client.AddEventHandler(ws.Handler)
+
+	ws.Clts[1] = client // Adiciona o cliente
+	println("Conexões iniciadas")
+}
+
+// Envia mensagem para um cliente específico
+func (ws *WhatsAppservice) SendToClient(clientID uint, message string) {
+	client, exists := ws.Clts[clientID]
+	if !exists {
+		println("Cliente não encontrado:", clientID)
+		return
+	}
+
+	if client.Handler != nil {
+		client.Handler.HandleEvents(message)
+	} else {
+		println("Nenhum handler associado ao cliente:", clientID)
+	}
+}
